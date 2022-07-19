@@ -8,45 +8,85 @@ module.exports = class IndexController {
     };
 
     /**
-     * get all cart
+     * add new user
      * @param {express.object} req
      * @param {express.object} res
      * @return {object} json  with user data
      */
-    async getAllCartItem(req, res) {
-        const cart = await this.indexService.getAllCartItem();
-        const total = await this.indexService.getCartBalance();
-        return res.data({ totalAmount: total, cartItems: cart });
+    async enrollUser(req, res) {
+        return res.data(await this.indexService.enrollUser(req.body));
     }
 
     /**
-     * add to cart
+     * borrow Book
      * @param {express.object} req
      * @param {express.object} res
      * @return {object} json  with user data
      */
-    async addCartItem(req, res) {
-        return res.data(await this.indexService.addCartItem(req.body));
+     async borrowBook(req, res) {
+        return res.data(await this.indexService.borrowBook(req.body));
     }
 
     /**
-     * add to coupon rules
+     * get all books
      * @param {express.object} req
      * @param {express.object} res
      * @return {object} json  with user data
      */
-    async addCouponRules(req, res) {
-        return res.data(await this.indexService.addCouponRules(req.body));
+    async getAllBooks(req, res) {
+        return res.data(await this.indexService.getAllBooks());
     }
 
     /**
-     * apply coupon to cart
+     * get Book By Id
      * @param {express.object} req
      * @param {express.object} res
      * @return {object} json  with user data
      */
-     async applyCouponToCart(req, res) {
-         const { coupon } = req.query;
-        return res.data(await this.indexService.applyCouponToCart(coupon));
+    async getBookById(req, res) {
+        const { bookId } = req.query;
+        return res.data(await this.indexService.getBookById(bookId));
+    }
+
+    /**
+     * filter Book By
+     * @param {express.object} req
+     * @param {express.object} res
+     * @return {object} json  with user data
+     */
+    async filterBookBy(req, res) {
+        const { publisher, category } = req.query;
+        if (typeof publisher !== 'undefined') {
+            return res.data(await this.indexService.filterBookByPublisher(publisher));
+        }
+        if (typeof category !== 'undefined') {
+            return res.data(await this.indexService.filterBookByCategory(category));
+        }
+        return Promise.reject(new AppError({
+            name: 'undefinedQuery',
+            statusCode: 401,
+            message: 'Publisher or Category is undefined!',
+        }));
+    }
+
+
+    /**
+     * add books
+     * @param {express.object} req
+     * @param {express.object} res
+     * @return {object} json  with user data
+     */
+    async addBooks(req, res) {
+        return res.data(await this.indexService.addBooks(req.body));
+    }
+
+    /**
+    * add books
+    * @param {express.object} req
+    * @param {express.object} res
+    * @return {object} json  with user data
+    */
+    async allUsers(req, res) {
+        return res.data(await this.indexService.allUsers());
     }
 };

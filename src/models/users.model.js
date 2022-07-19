@@ -2,11 +2,11 @@ const { Model, Sequelize } = require('sequelize');
 const { seq: DB } = require('../../sequelize');
 
 /**
- * Class for LGA Model
+ * Class for Users Model
  */
-class Cart extends Model {};
+class Users extends Model { };
 
-Cart.init({
+Users.init({
     id: {
         type: Sequelize.INTEGER,
         unique: true,
@@ -18,11 +18,15 @@ Cart.init({
         unique: true,
         defaultValue: Sequelize.UUIDV4,
     },
-    name: {
+    firstname: {
         type: Sequelize.STRING(255),
         allowNull: false,
     },
-    price: {
+    lastname: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+    },
+    email: {
         type: Sequelize.STRING(255),
         allowNull: false,
     },
@@ -35,10 +39,10 @@ Cart.init({
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
 }, {
-    tableName: 'data_cart_item',
+    tableName: 'data_users',
     underscored: false,
     timestamps: true,
     sequelize: DB,
 });
 
-module.exports = Cart;
+module.exports = Users;

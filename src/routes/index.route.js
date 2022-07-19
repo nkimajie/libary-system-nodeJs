@@ -14,23 +14,37 @@ const indexSchema = require('../validators/index.validator');
 module.exports.loadIndexRoutes = function loadIndexRoutes(container) {
     const indexController = container.resolve('indexController');
 
-    router.route('/get-all-cart-item').get(
-        $((...args) => indexController.getAllCartItem(...args)),
+    router.route('/users/enroll-user').post(
+        Validator(indexSchema.enrollUserSchema),
+        $((...args) => indexController.enrollUser(...args)),
     );
 
-    router.route('/add-cart-item').post(
-        Validator(indexSchema.addCartItem),
-        $((...args) => indexController.addCartItem(...args)),
+    router.route('/users/borrow-book-by-id').post(
+        Validator(indexSchema.borrowBookSchema),
+        $((...args) => indexController.borrowBook(...args)),
     );
 
-    router.route('/add-coupon-rules').post(
-        Validator(indexSchema.addCouponRules),
-        $((...args) => indexController.addCouponRules(...args)),
+    router.route('/users/list-all-books').get(
+        $((...args) => indexController.getAllBooks(...args)),
+    );
+    router.route('/users/get-book-by-id').get(
+        $((...args) => indexController.getBookById(...args)),
     );
 
-    router.route('/apply-coupon-to-cart').get(
-        $((...args) => indexController.applyCouponToCart(...args)),
+    router.route('/users/filter-book').get(
+        $((...args) => indexController.filterBookBy(...args)),
     );
+
+
+    router.route('/admin/add-books').post(
+        Validator(indexSchema.addBooksSchema),
+        $((...args) => indexController.addBooks(...args)),
+    );
+
+    router.route('/admin/all-users').get(
+        $((...args) => indexController.allUsers(...args)),
+    );
+
 
     return router;
 };

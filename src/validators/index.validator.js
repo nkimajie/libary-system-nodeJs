@@ -2,25 +2,35 @@ const Joi = require('joi');
 
 module.exports = class EnrollmentSchema {
     /**
-     * addCouponRules
+     * enrollUserSchema
      */
-    static get addCouponRules() {
+    static get enrollUserSchema() {
         return Joi.object({
-            name: Joi.string().required(),
-            discount_percent: Joi.number().required(),
-            discount_amount: Joi.number().required(),
-            cart_item: Joi.number().required(),
-            cart_total: Joi.number().required(),
+            firstname: Joi.string().required(),
+            lastname: Joi.string().required(),
+            email: Joi.string().email().required(),
         });
     }
 
     /**
-     * addCartItem
+     * addBooksSchema
      */
-    static get addCartItem() {
+    static get addBooksSchema() {
         return Joi.object({
             name: Joi.string().required(),
-            price: Joi.number().required(),
+            publisher: Joi.string().required(),
+            category: Joi.string().required(),
+        });
+    }
+
+    /**
+     * borrowBookSchema
+     */
+     static get borrowBookSchema() {
+        return Joi.object({
+            bookId: Joi.string().required(),
+            userId: Joi.string().required(),
+            days: Joi.number().required(),
         });
     }
 

@@ -1,13 +1,15 @@
 const AppError = require('../../helpers/error');
+const moment = require('moment');
 
 module.exports = class EnrollmentService {
     /**
      * app service constructor
      * @param { `cartRepository` } cartRepository
      */
-    constructor({ cartRepository, couponRepository }) {
-        this.cartRepository = cartRepository;
-        this.couponRepository = couponRepository;
+    constructor({ UsersRepository, BooksRepository, BorrowedRepository }) {
+        this.UsersRepository = UsersRepository;
+        this.BooksRepository = BooksRepository;
+        this.BorrowedRepository = BorrowedRepository;
     };
 
 
@@ -16,31 +18,109 @@ module.exports = class EnrollmentService {
      * get all cart item
      * @return {object} data
      */
-    async getAllCartItem() {
-        return await this.cartRepository.findAll();
+    async getAllBooks() {
+        return await this.BooksRepository.findAndCountAll();
     }
 
     /**
-     * add cart item
+    * get all users
+    * @return {object} data
+    */
+    async allUsers() {
+        return await this.UsersRepository.findAndCountAll();
+    }
+
+    /**
+     * get Book By Id
      * @return {object} data
      */
-    async addCartItem(data) {
-        return await this.cartRepository.create({...data});
+    async getBookById(bookId) {
+        return await this.BooksRepository.findOne({
+            where: {
+                id: bookId,
+            }
+        });
+    }
+
+    /**
+     * filterBookBy
+     * @return {object} data
+     */
+     async filterBookByPublisher(Publisher) {
+        return await this.BooksRepository.findOne({
+            where: {
+                Publisher
+            }
+        });
+    }
+
+    async filterBookByCategory(Category) {
+        return await this.BooksRepository.findOne({
+            where: {
+                Category
+            }
+        });
+    }
+
+    /**
+     * enroll User
+     * @return {object} data
+     */
+    async enrollUser(data) {
+        const { email } = data;
+        const [user, created] = await this.UsersRepository.findOrCreate({
+            where: { email },
+            defaults: {
+                ...data,
+            },
+        });
+        if (!created) {
+            return Promise.reject(new AppError({
+                name: 'UserExists',
+                statusCode: 401,
+                message: 'A user with this email already exists!',
+            }));
+        }
+        return user;
+    }
+
+    /**
+     * add book
+     * @return {object} data
+     */
+    async addBooks(data) {
+        return await this.BooksRepository.create({ ...data });
     }
 
      /**
-     * add coupon rules
+     * borrowBook
      * @return {object} data
      */
-      async addCouponRules(data) {
-        return await this.couponRepository.create({...data});
+      async borrowBook(data) {
+        const { bookId, userId, days } = data;
+        const {name} = await this.BooksRepository.findOne({
+            where: {
+                id: bookId,
+            }
+        });
+
+        const {id} = await this.UsersRepository.findOne({
+            where: {
+                id: bookId,
+            }
+        });
+        let borrowed_date = moment(new Date()).format("YYYY-MM-DD");
+        let return_date = moment(borrowed_date, "YYYY-MM-DD").add(days, 'days');
+
+        return await this.BorrowedRepository.create({ name,borrowed_by: id, borrowed_date, return_date });
     }
 
-     /**
-     * cart balance
-     * @return {object} data
-     */
-      async getCartBalance() {
+
+    /**
+    * cart balance
+    * @return {object} data
+    */
+    async getCartBalance() {
         return await this.cartRepository.getCartBalance();
     }
 
@@ -48,7 +128,7 @@ module.exports = class EnrollmentService {
      * apply coupon to cart
      * @return {object} data
      */
-     async applyCouponToCart(couponId) {
+    async applyCouponToCart(couponId) {
         let coupon = await this.couponRepository.findOne({
             where: {
                 name: couponId
@@ -64,19 +144,19 @@ module.exports = class EnrollmentService {
             );
         }
         let cartTotal = await this.cartRepository.getCartBalance();
-        cartTotal = cartTotal*1;
+        cartTotal = cartTotal * 1;
         let cart = await this.cartRepository.findAndCountAll();
         if (cartTotal > coupon.cart_total && cart.count >= coupon.cart_item) {
-           let newBalance = cartTotal;
-           if (coupon.discount_amount > 0) {
-            newBalance = cartTotal - coupon.discount_amount;
-           }
-           if (coupon.discount_percent > 0) {
-                let discount_percent = parseFloat(coupon.discount_percent)/100;
-                discount_percent = newBalance*discount_percent;
-                newBalance = newBalance-discount_percent;
+            let newBalance = cartTotal;
+            if (coupon.discount_amount > 0) {
+                newBalance = cartTotal - coupon.discount_amount;
             }
-           return {newBalance, cartTotal, cartItems: cart};
+            if (coupon.discount_percent > 0) {
+                let discount_percent = parseFloat(coupon.discount_percent) / 100;
+                discount_percent = newBalance * discount_percent;
+                newBalance = newBalance - discount_percent;
+            }
+            return { newBalance, cartTotal, cartItems: cart };
         }
     }
 
