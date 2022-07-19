@@ -8,6 +8,7 @@ const joiValidator = require('./joi-validator');
  * @returns middleware
  */
 
+
 module.exports =
     (schema, document = 'body') =>
     // eslint-disable-next-line space-before-function-paren
