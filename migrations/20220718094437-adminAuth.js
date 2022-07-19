@@ -30,7 +30,7 @@ module.exports = {
         },
         available: {
           type: Sequelize.ENUM('0', '1'),
-          defaultValue: 1,
+          defaultValue: '1',
         },
         createdAt: {
           type: Sequelize.DATE,

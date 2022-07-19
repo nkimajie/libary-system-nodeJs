@@ -98,21 +98,36 @@ module.exports = class EnrollmentService {
      */
       async borrowBook(data) {
         const { bookId, userId, days } = data;
-        const {name} = await this.BooksRepository.findOne({
+        const user = await this.BooksRepository.findOne({
             where: {
                 id: bookId,
             }
         });
+        if (!user) {
+            return Promise.reject(new AppError({
+                name: 'UserExists',
+                statusCode: 401,
+                message: 'User not found!',
+            }));
+        }
+        await this.BooksRepository.updateData({available: "0"}, bookId);
 
-        const {id} = await this.UsersRepository.findOne({
+        const book = await this.UsersRepository.findOne({
             where: {
                 id: bookId,
             }
         });
+        if (!book) {
+            return Promise.reject(new AppError({
+                name: 'BookExists',
+                statusCode: 401,
+                message: 'Book not found!',
+            }));
+        }
         let borrowed_date = moment(new Date()).format("YYYY-MM-DD");
         let return_date = moment(borrowed_date, "YYYY-MM-DD").add(days, 'days');
 
-        return await this.BorrowedRepository.create({ name,borrowed_by: id, borrowed_date, return_date });
+        return await this.BorrowedRepository.create({ book_name:user.name,borrowed_by: book.id, borrowed_date, return_date });
     }
 
 
