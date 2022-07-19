@@ -49,6 +49,26 @@ module.exports = class IndexController {
     }
 
     /**
+     * Fetch/List users and the books they have borrowed
+     * @param {express.object} req
+     * @param {express.object} res
+     * @return {object} json  with user data
+     */
+     async allUsersBorrowedBooks(req, res) {
+        return res.data(await this.indexService.allUsersBorrowedBooks());
+    }
+
+    /**
+     * Fetch/List the books that are not available for borrowing (showing the day it will be available)
+     * @param {express.object} req
+     * @param {express.object} res
+     * @return {object} json  with user data
+     */
+     async booksNotAvailiable(req, res) {
+        return res.data(await this.indexService.booksNotAvailiable());
+    }
+
+    /**
      * filter Book By
      * @param {express.object} req
      * @param {express.object} res

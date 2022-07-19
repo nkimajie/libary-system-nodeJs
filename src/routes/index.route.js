@@ -36,6 +36,8 @@ module.exports.loadIndexRoutes = function loadIndexRoutes(container) {
     );
 
 
+
+
     router.route('/admin/add-books').post(
         Validator(indexSchema.addBooksSchema),
         $((...args) => indexController.addBooks(...args)),
@@ -44,6 +46,15 @@ module.exports.loadIndexRoutes = function loadIndexRoutes(container) {
     router.route('/admin/all-users').get(
         $((...args) => indexController.allUsers(...args)),
     );
+
+    router.route('/admin/all-users-and-borrowed-books').get(
+        $((...args) => indexController.allUsersBorrowedBooks(...args)),
+    );
+
+    router.route('/admin/books-not-availiable').get(
+        $((...args) => indexController.booksNotAvailiable(...args)),
+    );
+
 
 
     return router;
